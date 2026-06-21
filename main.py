@@ -1,4 +1,5 @@
 import logging
+import sys
 import time
 from datetime import datetime, timezone
 
@@ -19,7 +20,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def run() -> None:
+def run(dry_run: bool = False) -> None:
     rodado_em = datetime.now(timezone.utc)
     logger.info("=== Iniciando rodada %s ===", rodado_em.isoformat())
 
@@ -51,10 +52,23 @@ def run() -> None:
     snapshot = FareSnapshot(rodado_em=rodado_em, ofertas=ofertas)
     append_snapshot(snapshot)
 
+    if dry_run:
+        from pricing import melhor_por_rota
+        logger.info("=== DRY-RUN: e-mail NÃO enviado — melhores por rota ===")
+        for (orig, dest), o in sorted(melhor_por_rota(ofertas).items()):
+            logger.info(
+                "  %s→%s  R$ %s/pax  (total R$ %s)  cias=%s  escalas %d+%d  %s→%s",
+                orig, dest, o.preco_por_pax, o.preco_total,
+                ",".join(o.cias) or "-", o.escalas_ida, o.escalas_volta,
+                o.query.embarque, o.query.retorno,
+            )
+        logger.info("=== Rodada concluída (dry-run): %d ofertas ===", len(ofertas))
+        return
+
     historico = load_all_offers()
     enviar_relatorio(ofertas, historico, rodado_em)
     logger.info("=== Rodada concluída: %d ofertas ===", len(ofertas))
 
 
 if __name__ == "__main__":
-    run()
+    run(dry_run="--dry-run" in sys.argv)
