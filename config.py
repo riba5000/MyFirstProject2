@@ -1,7 +1,7 @@
 from datetime import date
 from decouple import config
 
-ORIGENS   = ["FLN"]
+ORIGENS   = ["FLN", "GRU"]
 DESTINOS  = ["BKK", "SGN", "HAN"]
 PAX       = 2
 MOEDA     = "BRL"
