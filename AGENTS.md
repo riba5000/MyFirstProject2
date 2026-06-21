@@ -2,6 +2,24 @@
 
 Monitor de tarifa paga FLN → Sudeste Asiático via Amadeus Self-Service API.
 
+## STATUS (2026-06-21): PAUSADO — decisão de fonte de dados pendente
+
+O código está completo e testado (33 testes passando). O que falta é a **fonte de dados**:
+
+- **Travelpayouts/Aviasales (Data API gratuita)**: IMPLEMENTADO (`travelpayouts_client.py`),
+  autentica OK, mas **NÃO serve** para este projeto. O cache cobre só as buscas das
+  últimas 48h dos usuários do Aviasales → datas futuras (ex.: dez/2026) voltam sempre
+  vazias. Confirmado por teste real + doc. Não é bug; é limitação do produto. O real-time
+  API deles exige 50k usuários ativos/mês.
+- **Amadeus (Self-Service)**: IMPLEMENTADO (`amadeus_client.py`), é a fonte da spec original,
+  tem inventário real para datas futuras, tier gratuito. Só falta criar conta em
+  developers.amadeus.com e pôr AMADEUS_CLIENT_ID/SECRET no .env + FONTE=amadeus.
+- **SerpApi (Google Voos)**: não implementado. Dados reais, 250 buscas/mês grátis (depois pago).
+  Exigiria enxugar a grade (~90 queries → poucas).
+
+Trocar de fonte mexe só no client (núcleo dates/pricing/store/report é agnóstico).
+Seletor em `config.FONTE`. Para retomar: escolher fonte e configurar credenciais no .env.
+
 ## Arquitetura
 
 - **Core puro/testável**: `dates.py`, `pricing.py` — não chamam rede; cobertos por `tests/`.
