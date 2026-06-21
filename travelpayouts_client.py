@@ -74,6 +74,7 @@ def flight_offers_search(query: TripQuery) -> list[FareOffer]:
         "unique": "false",
         "limit": str(config.MAX_OFERTAS_POR_QUERY),
         "direct": "true" if config.NONSTOP_ONLY else "false",
+        "token": config.TRAVELPAYOUTS_TOKEN,
     }
 
     resp = httpx.get(
@@ -88,7 +89,10 @@ def flight_offers_search(query: TripQuery) -> list[FareOffer]:
         time.sleep(5)
         return flight_offers_search(query)
 
-    resp.raise_for_status()
+    if resp.status_code >= 400:
+        logger.error("HTTP %s da Travelpayouts: %s", resp.status_code, resp.text[:300])
+        resp.raise_for_status()
+
     body = resp.json()
 
     if not body.get("success", False):
