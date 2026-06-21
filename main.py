@@ -3,7 +3,10 @@ import time
 from datetime import datetime, timezone
 
 import config
-from amadeus_client import flight_offers_search
+if config.FONTE == "amadeus":
+    from amadeus_client import flight_offers_search
+else:
+    from travelpayouts_client import flight_offers_search
 from dates import gerar_grade
 from models import FareSnapshot
 from report import enviar_relatorio

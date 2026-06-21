@@ -22,6 +22,12 @@ NONSTOP_ONLY          = False
 MAX_OFERTAS_POR_QUERY = 5
 THROTTLE_SEG          = 0.5
 
+# Fonte de dados: "travelpayouts" (default) ou "amadeus"
+FONTE = config("FONTE", default="travelpayouts")
+
+TRAVELPAYOUTS_TOKEN    = config("TRAVELPAYOUTS_TOKEN",    default="")
+TRAVELPAYOUTS_BASE_URL = config("TRAVELPAYOUTS_BASE_URL", default="https://api.travelpayouts.com")
+
 AMADEUS_CLIENT_ID     = config("AMADEUS_CLIENT_ID",     default="")
 AMADEUS_CLIENT_SECRET = config("AMADEUS_CLIENT_SECRET", default="")
 AMADEUS_BASE_URL      = config("AMADEUS_BASE_URL",      default="https://test.api.amadeus.com")
