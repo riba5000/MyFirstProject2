@@ -9,8 +9,10 @@ if config.FONTE == "amadeus":
     from amadeus_client import flight_offers_search
 elif config.FONTE == "travelpayouts":
     from travelpayouts_client import flight_offers_search
-else:
+elif config.FONTE == "serpapi":
     from serpapi_client import flight_offers_search
+else:
+    from gf_search_client import flight_offers_search
 from dates import gerar_grade, selecionar_amostra
 from models import FareSnapshot
 from report import enviar_relatorio

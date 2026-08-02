@@ -3,4 +3,7 @@ pydantic>=2.7.0
 python-decouple>=3.8
 APScheduler>=3.10.0
 matplotlib>=3.9.0
-playwright>=1.44.0   # opcional; necessário apenas para fallback_metasearch.py
+
+# Fonte padrão (FONTE=gfsearch): Google Flights via SSR, sem chave e sem cota.
+# O módulo importado chama-se `gf_search`.
+google-flights-search>=0.1.21

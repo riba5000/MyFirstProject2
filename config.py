@@ -24,22 +24,25 @@ NONSTOP_ONLY          = False
 MAX_OFERTAS_POR_QUERY = 5
 THROTTLE_SEG          = 0.5
 
-# Fonte de dados: "serpapi" (default) | "travelpayouts" | "amadeus"
-#   serpapi       → Google Flights, inventário real, cota 250/mês no gratuito
+# Fonte de dados: "gfsearch" (default) | "serpapi" | "travelpayouts" | "amadeus"
+#   gfsearch      → Google Flights via lib gf_search: sem chave e SEM COTA
+#   serpapi       → Google Flights oficial via SerpApi; cota 250/mês no gratuito
 #   travelpayouts → cache de 48h; NÃO serve para datas futuras (ver AGENTS.md)
 #   amadeus       → desativada pela Amadeus em 17/07/2026; mantido só como histórico
-FONTE = config("FONTE", default="serpapi")
+FONTE = config("FONTE", default="gfsearch")
+
+# True  → o preço devolvido é o total do grupo (padrão do Google Flights)
+# False → o preço é por passageiro
+PRECO_E_TOTAL = config("PRECO_E_TOTAL", cast=bool, default=True)
 
 SERPAPI_KEY = config("SERPAPI_KEY", default="")
-# True  → `price` do Google Flights é o total do grupo (padrão)
-# False → `price` é por passageiro
-SERPAPI_PRECO_E_TOTAL = config("SERPAPI_PRECO_E_TOTAL", cast=bool, default=True)
-# Cota do tier gratuito. A trava é local e conservadora (ver quota.py).
+# Cota do tier gratuito do SerpApi. A trava é local e conservadora (ver quota.py).
 SERPAPI_QUOTA_MENSAL = config("SERPAPI_QUOTA_MENSAL", cast=int, default=250)
 
-# Teto de buscas por rodada. 6/rodada × 1 rodada/dia ≈ 180/mês, com folga
-# dentro dos 250 gratuitos. A grade cheia (~45) é amostrada até este teto.
-MAX_QUERIES_POR_RODADA = config("MAX_QUERIES_POR_RODADA", cast=int, default=6)
+# Teto de buscas por rodada; 0 = sem teto (a grade inteira roda).
+# Com o gfsearch não há cota, então o padrão é 0. Se voltar para o SerpApi,
+# use 6 (≈180/mês, dentro dos 250 gratuitos).
+MAX_QUERIES_POR_RODADA = config("MAX_QUERIES_POR_RODADA", cast=int, default=0)
 
 TRAVELPAYOUTS_TOKEN    = config("TRAVELPAYOUTS_TOKEN",    default="")
 TRAVELPAYOUTS_BASE_URL = config("TRAVELPAYOUTS_BASE_URL", default="https://api.travelpayouts.com")

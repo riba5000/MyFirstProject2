@@ -23,7 +23,7 @@ PREMISSA DE PREÇO:
       preco_total   = price
       preco_por_pax = price / pax
   Se na verificação os números vierem pela metade/dobro do esperado, basta
-  inverter com SERPAPI_PRECO_E_TOTAL=false no .env — sem mexer no código.
+  inverter com PRECO_E_TOTAL=false no .env — sem mexer no código.
 """
 import logging
 import time
@@ -67,7 +67,7 @@ def _parse_offers(body: dict, query: TripQuery) -> list[FareOffer]:
             continue
 
         bruto = Decimal(str(preco_bruto))
-        if config.SERPAPI_PRECO_E_TOTAL:
+        if config.PRECO_E_TOTAL:
             preco_total = bruto
             preco_por_pax = (bruto / query.pax).quantize(Decimal("0.01"), ROUND_HALF_UP)
         else:
@@ -78,7 +78,7 @@ def _parse_offers(body: dict, query: TripQuery) -> list[FareOffer]:
             _avisou_preco = True
             logger.info(
                 "Interpretação de preço: bruto=%s para %d pax → total=%s, por pax=%s "
-                "(inverta com SERPAPI_PRECO_E_TOTAL no .env se estiver trocado)",
+                "(inverta com PRECO_E_TOTAL no .env se estiver trocado)",
                 bruto, query.pax, preco_total, preco_por_pax,
             )
 

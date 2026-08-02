@@ -75,6 +75,11 @@ def test_teto_menor_que_numero_de_rotas():
 
 
 def test_grade_real_cabe_no_teto_configurado():
+    """Com teto > 0 a grade real é cortada; com 0 (sem cota) roda inteira."""
     import config
-    amostra = selecionar_amostra(gerar_grade(), config.MAX_QUERIES_POR_RODADA)
-    assert len(amostra) <= config.MAX_QUERIES_POR_RODADA
+    grade = gerar_grade()
+    amostra = selecionar_amostra(grade, config.MAX_QUERIES_POR_RODADA)
+    if config.MAX_QUERIES_POR_RODADA > 0:
+        assert len(amostra) <= config.MAX_QUERIES_POR_RODADA
+    else:
+        assert len(amostra) == len(grade)

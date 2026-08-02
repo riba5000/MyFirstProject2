@@ -59,14 +59,14 @@ def test_volta_e_desconhecida_nao_zero():
 
 
 def test_preco_como_total_do_grupo(monkeypatch):
-    monkeypatch.setattr(config, "SERPAPI_PRECO_E_TOTAL", True)
+    monkeypatch.setattr(config, "PRECO_E_TOTAL", True)
     o = _parse_offers(_body(_ITEM), _query(pax=2))[0]
     assert o.preco_total == Decimal("12400")
     assert o.preco_por_pax == Decimal("6200.00")
 
 
 def test_preco_como_por_passageiro(monkeypatch):
-    monkeypatch.setattr(config, "SERPAPI_PRECO_E_TOTAL", False)
+    monkeypatch.setattr(config, "PRECO_E_TOTAL", False)
     o = _parse_offers(_body(_ITEM), _query(pax=2))[0]
     assert o.preco_por_pax == Decimal("12400")
     assert o.preco_total == Decimal("24800.00")
