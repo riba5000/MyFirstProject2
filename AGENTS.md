@@ -2,23 +2,33 @@
 
 Monitor de tarifa paga FLN → Sudeste Asiático via Amadeus Self-Service API.
 
-## STATUS (2026-06-21): PAUSADO — decisão de fonte de dados pendente
+## STATUS (2026-08-02): fonte = SerpApi (Google Flights). Falta 1 teste real.
 
-O código está completo e testado (33 testes passando). O que falta é a **fonte de dados**:
+### Histórico das fontes (não repetir os becos sem saída)
 
-- **Travelpayouts/Aviasales (Data API gratuita)**: IMPLEMENTADO (`travelpayouts_client.py`),
-  autentica OK, mas **NÃO serve** para este projeto. O cache cobre só as buscas das
-  últimas 48h dos usuários do Aviasales → datas futuras (ex.: dez/2026) voltam sempre
-  vazias. Confirmado por teste real + doc. Não é bug; é limitação do produto. O real-time
-  API deles exige 50k usuários ativos/mês.
-- **Amadeus (Self-Service)**: IMPLEMENTADO (`amadeus_client.py`), é a fonte da spec original,
-  tem inventário real para datas futuras, tier gratuito. Só falta criar conta em
-  developers.amadeus.com e pôr AMADEUS_CLIENT_ID/SECRET no .env + FONTE=amadeus.
-- **SerpApi (Google Voos)**: não implementado. Dados reais, 250 buscas/mês grátis (depois pago).
-  Exigiria enxugar a grade (~90 queries → poucas).
+- **Amadeus Self-Service** — ☠️ **DESATIVADA em 17/07/2026**: a Amadeus fechou novos
+  cadastros e desligou as chaves existentes, empurrando todos para o Enterprise
+  (exige acreditação IATA/ARC). `amadeus_client.py` fica só como histórico.
+- **Travelpayouts/Aviasales (grátis)** — ❌ **não serve**: o cache cobre só as buscas
+  das últimas 48h dos usuários do Aviasales, então datas futuras voltam sempre vazias.
+  Confirmado em teste real + doc. Não é bug, é limitação do produto. O real-time deles
+  exige 50k usuários ativos/mês.
+- **SerpApi / google_flights** — ✅ **em uso**: resultado real do Google Flights,
+  inclusive datas distantes. Restrição: **250 buscas/mês** no tier gratuito.
 
-Trocar de fonte mexe só no client (núcleo dates/pricing/store/report é agnóstico).
-Seletor em `config.FONTE`. Para retomar: escolher fonte e configurar credenciais no .env.
+### Consequências de projeto da cota
+
+- `dates.selecionar_amostra()` corta a grade cheia (45) para `MAX_QUERIES_POR_RODADA` (6),
+  de forma determinística e balanceada entre destinos, cobrindo a janela inteira.
+- `quota.py` mantém um contador local por mês e **cancela a rodada** antes de estourar.
+  Conta toda busca disparada (conservador — o SerpApi não cobra erro).
+- `scheduler.py` roda **1×/dia** (2×/dia estouraria): 6 × 30 = 180/mês, folga de 70.
+
+### Pendência para retomar
+
+Rodar `python main.py --dry-run` uma vez e conferir a linha
+"Interpretação de preço: ..." no log. Se o valor por pax vier o dobro/metade do
+esperado, inverter `SERPAPI_PRECO_E_TOTAL` no `.env` (só isso, sem mexer no código).
 
 ## Arquitetura
 

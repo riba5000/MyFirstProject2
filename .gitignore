@@ -3,6 +3,7 @@ __pycache__/
 *.pyo
 .env
 history.json
+serpapi_quota.json
 .pytest_cache/
 *.egg-info/
 dist/

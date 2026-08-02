@@ -1,7 +1,9 @@
 from datetime import date
 from decouple import config
 
-ORIGENS   = ["FLN", "GRU"]
+# O SerpApi lê o Google Flights (inventário real), então FLN funciona direto —
+# não é preciso o paliativo de monitorar GRU que a fonte de cache exigia.
+ORIGENS   = ["FLN"]
 DESTINOS  = ["BKK", "SGN", "HAN"]
 PAX       = 2
 MOEDA     = "BRL"
@@ -22,8 +24,22 @@ NONSTOP_ONLY          = False
 MAX_OFERTAS_POR_QUERY = 5
 THROTTLE_SEG          = 0.5
 
-# Fonte de dados: "travelpayouts" (default) ou "amadeus"
-FONTE = config("FONTE", default="travelpayouts")
+# Fonte de dados: "serpapi" (default) | "travelpayouts" | "amadeus"
+#   serpapi       → Google Flights, inventário real, cota 250/mês no gratuito
+#   travelpayouts → cache de 48h; NÃO serve para datas futuras (ver AGENTS.md)
+#   amadeus       → desativada pela Amadeus em 17/07/2026; mantido só como histórico
+FONTE = config("FONTE", default="serpapi")
+
+SERPAPI_KEY = config("SERPAPI_KEY", default="")
+# True  → `price` do Google Flights é o total do grupo (padrão)
+# False → `price` é por passageiro
+SERPAPI_PRECO_E_TOTAL = config("SERPAPI_PRECO_E_TOTAL", cast=bool, default=True)
+# Cota do tier gratuito. A trava é local e conservadora (ver quota.py).
+SERPAPI_QUOTA_MENSAL = config("SERPAPI_QUOTA_MENSAL", cast=int, default=250)
+
+# Teto de buscas por rodada. 6/rodada × 1 rodada/dia ≈ 180/mês, com folga
+# dentro dos 250 gratuitos. A grade cheia (~45) é amostrada até este teto.
+MAX_QUERIES_POR_RODADA = config("MAX_QUERIES_POR_RODADA", cast=int, default=6)
 
 TRAVELPAYOUTS_TOKEN    = config("TRAVELPAYOUTS_TOKEN",    default="")
 TRAVELPAYOUTS_BASE_URL = config("TRAVELPAYOUTS_BASE_URL", default="https://api.travelpayouts.com")

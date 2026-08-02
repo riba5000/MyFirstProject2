@@ -73,7 +73,8 @@ def _build_html(
             f"<td align='right'><b>{_fmt_brl(o.preco_por_pax)}</b></td>"
             f"<td align='right'>{_fmt_brl(o.preco_total)}</td>"
             f"<td>{', '.join(o.cias)}</td>"
-            f"<td align='center'>{o.escalas_ida} + {o.escalas_volta}</td>"
+            f"<td align='center'>{o.escalas_ida} + "
+            f"{'?' if o.escalas_volta is None else o.escalas_volta}</td>"
             f"<td>{o.query.embarque:%d/%m/%Y} → {o.query.retorno:%d/%m/%Y}</td>"
             f"</tr>"
         )
@@ -121,7 +122,9 @@ def _build_html(
 {chart_html}
 <hr><p style='font-size:11px;color:#888'>
 Tarifas informativas — confirme valores e disponibilidade antes de comprar.
-grandTotal Amadeus não inclui bagagem despachada.
+Fonte: {config.FONTE}. Preços podem não incluir bagagem despachada.
+"Escalas ida+volta" com "?" na volta: a busca inicial do Google Flights só
+detalha os segmentos da ida.
 </p>
 </body></html>"""
 
