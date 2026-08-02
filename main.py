@@ -18,11 +18,39 @@ from models import FareSnapshot
 from report import enviar_relatorio
 from store import append_snapshot, load_all_offers
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s %(levelname)s %(name)s — %(message)s",
-)
-logging.getLogger("httpx").setLevel(logging.WARNING)
+def _configurar_logs() -> None:
+    """
+    Log na tela E em arquivo rotativo (logs/monitor.log).
+
+    O arquivo é o que importa quando o Agendador do Windows roda a tarefa sem
+    ninguém olhando: é lá que se descobre o que aconteceu às 8h da manhã.
+    """
+    from logging.handlers import RotatingFileHandler
+    from pathlib import Path
+
+    fmt = logging.Formatter("%(asctime)s %(levelname)s %(name)s — %(message)s")
+    raiz = logging.getLogger()
+    raiz.setLevel(logging.INFO)
+
+    console = logging.StreamHandler()
+    console.setFormatter(fmt)
+    raiz.addHandler(console)
+
+    try:
+        pasta = Path(__file__).parent / "logs"
+        pasta.mkdir(exist_ok=True)
+        arquivo = RotatingFileHandler(
+            pasta / "monitor.log", maxBytes=1_000_000, backupCount=5, encoding="utf-8"
+        )
+        arquivo.setFormatter(fmt)
+        raiz.addHandler(arquivo)
+    except OSError as exc:      # disco cheio / permissão: seguir só com o console
+        raiz.warning("Sem log em arquivo: %s", exc)
+
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+
+
+_configurar_logs()
 logger = logging.getLogger(__name__)
 
 
